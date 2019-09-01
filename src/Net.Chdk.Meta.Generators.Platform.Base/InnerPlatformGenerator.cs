@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Net.Chdk.Meta.Generators.Platform
@@ -25,6 +26,18 @@ namespace Net.Chdk.Meta.Generators.Platform
                 split = Trim(split);
 
             return PostProcess(split);
+        }
+
+        protected static string[] AdaptMark(string[] split)
+        {
+            var index = Array.IndexOf(split, "Mark");
+            if (index <= 0)
+                return split;
+            var m = RomanToInteger(split[index + 1]);
+            return split
+                .Take(index)
+                .Concat(new[] { m.ToString() })
+                .ToArray();
         }
 
         protected virtual IEnumerable<string> PreGenerate(string source)
@@ -54,5 +67,22 @@ namespace Net.Chdk.Meta.Generators.Platform
         protected abstract string Keyword { get; }
 
         protected virtual string[] Suffixes => new string[0];
+
+        private static int RomanToInteger(string roman)
+        {
+            switch (roman)
+            {
+                case "I":
+                    return 1;
+                case "II":
+                    return 2;
+                case "III":
+                    return 3;
+                case "IV":
+                    return 4;
+                default:
+                    throw new InvalidOperationException($"Invalid numeral {roman}");
+            }
+        }
     }
 }
